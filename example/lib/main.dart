@@ -2,25 +2,27 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_weather_bg_null_safety/bg/weather_bg.dart';
-import 'package:flutter_weather_bg_null_safety/utils/print_utils.dart';
 import 'package:flutter_weather_bg_null_safety/utils/weather_type.dart';
-import 'package:flutter_weather_bg_example/anim_view.dart';
-import 'package:flutter_weather_bg_example/grid_view.dart';
-import 'package:flutter_weather_bg_example/list_view.dart';
-import 'package:flutter_weather_bg_example/page_view.dart';
+
+import 'anim_view.dart';
+import 'grid_view.dart';
+import 'list_view.dart';
+import 'page_view.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
-const routePage = "page";
-const routeList = "list";
-const routeGrid = "grid";
-const routeAnim = "anim";
+const routePage = 'page';
+const routeList = 'list';
+const routeGrid = 'grid';
+const routeAnim = 'anim';
 
 class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
   @override
-  _MyAppState createState() => _MyAppState();
+  State<MyApp> createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
@@ -34,39 +36,45 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       routes: {
         routePage: (BuildContext context) {
-          // 普通的侧滑样式
-          return PageViewWidget();
+          // Regular side swipe style
+          return const PageViewWidget();
         },
         routeList: (BuildContext context) {
-          // 宫格样式
-          return ListViewWidget();
+          // List style
+          return const ListViewWidget();
         },
         routeGrid: (BuildContext context) {
-          // 宫格样式
-          return GridViewWidget();
+          // Grid Style
+          return const GridViewWidget();
         },
         routeAnim: (BuildContext context) {
-          // 动态切换 宽高样式
-          return AnimViewWidget();
-        }
+          // Animation
+          return const AnimViewWidget();
+        },
       },
-      home: HomePage(),
+      home: const HomePage(),
     );
   }
 }
 
-/// demo 首页布局
+/// Home page layout demo
 class HomePage extends StatelessWidget {
-  /// 创建首页 item 布局
-  Widget _buildItem(BuildContext context, String routeName, String desc,
-      WeatherType weatherType) {
+  const HomePage({super.key});
+
+  /// Create home page item layout
+  Widget _buildItem(
+    BuildContext context,
+    String routeName,
+    String desc,
+    WeatherType weatherType,
+  ) {
     double width = MediaQuery.of(context).size.width;
     double marginLeft = 10.0;
     double marginTop = 8.0;
     double itemWidth = (width - marginLeft * 4) / 2;
     double itemHeight = itemWidth * 1.5;
     var radius = 10.0;
-    return Container(
+    return SizedBox(
       width: itemWidth,
       height: itemHeight,
       child: Card(
@@ -77,8 +85,10 @@ class HomePage extends StatelessWidget {
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius)),
         child: ClipPath(
           clipper: ShapeBorderClipper(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(radius))),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(radius),
+            ),
+          ),
           child: Stack(
             children: [
               WeatherBg(
@@ -92,14 +102,14 @@ class HomePage extends StatelessWidget {
                   child: Center(
                     child: Text(
                       desc,
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                      ),
                     ),
                   ),
                   onTap: () {
-                    weatherPrint("name: $routeName");
                     Navigator.of(context).pushNamed(routeName);
                   },
                 ),
@@ -117,10 +127,30 @@ class HomePage extends StatelessWidget {
       body: Center(
         child: Wrap(
           children: [
-            _buildItem(context, routePage, "翻页效果", WeatherType.heavyRainy),
-            _buildItem(context, routeGrid, "宫格效果", WeatherType.sunnyNight),
-            _buildItem(context, routeList, "列表效果", WeatherType.lightSnow),
-            _buildItem(context, routeAnim, "切换效果", WeatherType.sunny),
+            _buildItem(
+              context,
+              routePage,
+              WeatherType.heavyRainy.name,
+              WeatherType.heavyRainy,
+            ),
+            _buildItem(
+              context,
+              routeGrid,
+              WeatherType.sunnyNight.name,
+              WeatherType.sunnyNight,
+            ),
+            _buildItem(
+              context,
+              routeList,
+              WeatherType.lightSnow.name,
+              WeatherType.lightSnow,
+            ),
+            _buildItem(
+              context,
+              routeAnim,
+              WeatherType.sunny.name,
+              WeatherType.sunny,
+            ),
           ],
         ),
       ),

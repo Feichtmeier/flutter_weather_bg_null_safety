@@ -1,16 +1,19 @@
 import 'package:flutter/widgets.dart';
 
-/// 定义打印函数
-typedef WeatherPrint = void Function(String message,
-    {int wrapWidth, String tag});
+/// Define the print function
+typedef WeatherPrint = void Function(
+  String message, {
+  int wrapWidth,
+  String tag,
+});
 
-const DEBUG = false;
+const kWeatherDebug = false;
 
 WeatherPrint weatherPrint = debugPrintThrottled;
 
-// 统一方法进行打印
+// Unified method for printing
 void debugPrintThrottled(String message, {int? wrapWidth, String? tag}) {
-  if (DEBUG) {
-    debugPrint("flutter-weather: $tag: $message", wrapWidth: wrapWidth);
+  if (kWeatherDebug) {
+    debugPrint('flutter-weather: $tag: $message', wrapWidth: wrapWidth);
   }
 }

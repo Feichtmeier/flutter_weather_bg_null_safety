@@ -1,32 +1,30 @@
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
-import 'package:flutter_weather_bg_null_safety/bg/weather_bg.dart';
-import 'package:flutter_weather_bg_null_safety/utils/image_utils.dart';
-import 'package:flutter_weather_bg_null_safety/utils/print_utils.dart';
-import 'package:flutter_weather_bg_null_safety/utils/weather_type.dart';
+import 'weather_bg.dart';
+import '../utils/image_utils.dart';
+import '../utils/weather_type.dart';
 
-//// 专门负责绘制背景云层
-//// 会根据不同的天气类型，选择需要绘制的图片类型，并控制缩放、渐变、位移以及染色，最终显示在屏幕上
+/// Responsible for drawing the background cloud layer
+/// Selects the appropriate image type to draw based on the weather type
+/// Controls scaling, gradients, translation, and coloring to display on the screen
 class WeatherCloudBg extends StatefulWidget {
   final WeatherType weatherType;
 
-  WeatherCloudBg({Key? key, required this.weatherType}) : super(key: key);
+  const WeatherCloudBg({super.key, required this.weatherType});
 
   @override
-  _WeatherCloudBgState createState() => _WeatherCloudBgState();
+  State<WeatherCloudBg> createState() => _WeatherCloudBgState();
 }
 
 class _WeatherCloudBgState extends State<WeatherCloudBg> {
-  List<ui.Image> _images = [];
+  final List<ui.Image> _images = [];
 
   Future<void> fetchImages() async {
-    weatherPrint("开始获取云层图片");
     var image1 = await ImageUtils.getImage('images/cloud.webp');
     var image2 = await ImageUtils.getImage('images/sun.webp');
     _images.add(image1);
     _images.add(image2);
-    weatherPrint("获取云层图片成功： ${_images.length}${widget.weatherType}");
     setState(() {});
   }
 
@@ -37,16 +35,14 @@ class _WeatherCloudBgState extends State<WeatherCloudBg> {
   }
 
   Widget _buildWidget() {
-    weatherPrint(
-        "获取云层图片成功： ${SizeInherited.of(context)?.size.width}${widget.weatherType}");
-
     if (_images.isNotEmpty) {
       return CustomPaint(
         painter: BgPainter(
-            _images,
-            widget.weatherType,
-            (SizeInherited.of(context)?.size.width ?? double.infinity) / 392.0,
-            SizeInherited.of(context)?.size.width ?? double.infinity),
+          _images,
+          widget.weatherType,
+          (SizeInherited.of(context)?.size.width ?? double.infinity) / 392.0,
+          SizeInherited.of(context)?.size.width ?? double.infinity,
+        ),
       );
     } else {
       return Container();
@@ -63,12 +59,10 @@ class BgPainter extends CustomPainter {
   final _paint = Paint();
   final List<ui.Image> images;
   final WeatherType weatherType;
-  final widthRatio;
-  final width;
+  final double widthRatio;
+  final double width;
 
-  BgPainter(this.images, this.weatherType, this.widthRatio, this.width) {
-    weatherPrint("获取云层图片成功paintpaint： ${widthRatio}===width==${width}");
-  }
+  BgPainter(this.images, this.weatherType, this.widthRatio, this.width);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -120,22 +114,24 @@ class BgPainter extends CustomPainter {
     }
   }
 
-  /// 绘制阳光
+  /// Draw sunshine
   void drawSunny(Canvas canvas, Size size) {
     ui.Image image = images[0];
     ui.Image image1 = images[1];
-    _paint.maskFilter = MaskFilter.blur(BlurStyle.normal, 40);
+    _paint.maskFilter = const MaskFilter.blur(BlurStyle.normal, 40);
     canvas.save();
     final sunScale = 1.2 * widthRatio;
     canvas.scale(sunScale, sunScale);
-    var offset = Offset(width.toDouble() - image1.width.toDouble() * sunScale,
-        -image1.width.toDouble() / 2);
+    var offset = Offset(
+      width.toDouble() - image1.width.toDouble() * sunScale,
+      -image1.width.toDouble() / 2,
+    );
     canvas.drawImage(image1, offset, _paint);
     canvas.restore();
 
     canvas.save();
     final scale = 0.6 * widthRatio;
-    ui.Offset offset1 = ui.Offset(-100, -100);
+    ui.Offset offset1 = const ui.Offset(-100, -100);
     canvas.scale(scale);
     canvas.drawImage(image, offset1, _paint);
     canvas.restore();
@@ -168,9 +164,9 @@ class BgPainter extends CustomPainter {
     ]);
     _paint.colorFilter = identity;
     final scale = 0.8 * widthRatio;
-    ui.Offset offset1 = ui.Offset(0, -200);
+    ui.Offset offset1 = const ui.Offset(0, -200);
     ui.Offset offset2 = ui.Offset(-image.width / 2, -130);
-    ui.Offset offset3 = ui.Offset(100, 0);
+    ui.Offset offset3 = const ui.Offset(100, 0);
     canvas.scale(scale);
     canvas.drawImage(image, offset1, _paint);
     canvas.drawImage(image, offset2, _paint);
@@ -178,7 +174,7 @@ class BgPainter extends CustomPainter {
     canvas.restore();
   }
 
-  /// 绘制多云的夜晚效果
+  /// Draw Cloudy Night
   void drawCloudyNight(Canvas canvas, Size size) {
     ui.Image image = images[0];
     canvas.save();
@@ -206,9 +202,9 @@ class BgPainter extends CustomPainter {
     ]);
     _paint.colorFilter = identity;
     final scale = 0.8 * widthRatio;
-    ui.Offset offset1 = ui.Offset(0, -200);
+    ui.Offset offset1 = const ui.Offset(0, -200);
     ui.Offset offset2 = ui.Offset(-image.width / 2, -130);
-    ui.Offset offset3 = ui.Offset(100, 0);
+    ui.Offset offset3 = const ui.Offset(100, 0);
     canvas.scale(scale, scale);
     canvas.drawImage(image, offset1, _paint);
     canvas.drawImage(image, offset2, _paint);
@@ -216,7 +212,7 @@ class BgPainter extends CustomPainter {
     canvas.restore();
   }
 
-  /// 绘制阴天
+  /// Draw Overcast
   void drawOvercast(Canvas canvas, Size size) {
     ui.Image image = images[0];
     canvas.save();
@@ -244,9 +240,9 @@ class BgPainter extends CustomPainter {
     ]);
     _paint.colorFilter = identity;
     final scale = 0.8 * widthRatio;
-    ui.Offset offset1 = ui.Offset(0, -200);
+    ui.Offset offset1 = const ui.Offset(0, -200);
     ui.Offset offset2 = ui.Offset(-image.width / 2, -130);
-    ui.Offset offset3 = ui.Offset(100, 0);
+    ui.Offset offset3 = const ui.Offset(100, 0);
     canvas.scale(scale, scale);
     canvas.drawImage(image, offset1, _paint);
     canvas.drawImage(image, offset2, _paint);
@@ -254,7 +250,7 @@ class BgPainter extends CustomPainter {
     canvas.restore();
   }
 
-  /// 绘制小雨效果
+  /// Draw Light Rainy
   void drawLightRainy(Canvas canvas, Size size) {
     ui.Image image = images[0];
     canvas.save();
@@ -282,9 +278,9 @@ class BgPainter extends CustomPainter {
     ]);
     _paint.colorFilter = identity;
     final scale = 0.8 * widthRatio;
-    ui.Offset offset1 = ui.Offset(-380, -150);
-    ui.Offset offset2 = ui.Offset(0, -60);
-    ui.Offset offset3 = ui.Offset(0, 60);
+    ui.Offset offset1 = const ui.Offset(-380, -150);
+    ui.Offset offset2 = const ui.Offset(0, -60);
+    ui.Offset offset3 = const ui.Offset(0, 60);
     canvas.scale(scale);
     canvas.drawImage(image, offset1, _paint);
     canvas.drawImage(image, offset2, _paint);
@@ -292,7 +288,7 @@ class BgPainter extends CustomPainter {
     canvas.restore();
   }
 
-  /// 绘制霾逻辑
+  /// Draw Hazy
   void drawHazy(Canvas canvas, Size size) {
     ui.Image image = images[0];
     canvas.save();
@@ -326,7 +322,7 @@ class BgPainter extends CustomPainter {
     canvas.restore();
   }
 
-  /// 绘制雾
+  /// Draw Foggy
   void drawFoggy(Canvas canvas, Size size) {
     ui.Image image = images[0];
     canvas.save();
@@ -360,7 +356,7 @@ class BgPainter extends CustomPainter {
     canvas.restore();
   }
 
-  /// 绘制浮尘
+  /// Draw Dusty
   void drawDusty(Canvas canvas, Size size) {
     ui.Image image = images[0];
     canvas.save();
@@ -394,7 +390,7 @@ class BgPainter extends CustomPainter {
     canvas.restore();
   }
 
-  /// 绘制大雨
+  /// Draw Heavy Rainy
   void drawHeavyRainy(Canvas canvas, Size size) {
     ui.Image image = images[0];
     canvas.save();
@@ -422,9 +418,9 @@ class BgPainter extends CustomPainter {
     ]);
     _paint.colorFilter = identity;
     final scale = 0.8 * widthRatio;
-    ui.Offset offset1 = ui.Offset(-380, -150);
-    ui.Offset offset2 = ui.Offset(0, -60);
-    ui.Offset offset3 = ui.Offset(0, 60);
+    ui.Offset offset1 = const ui.Offset(-380, -150);
+    ui.Offset offset2 = const ui.Offset(0, -60);
+    ui.Offset offset3 = const ui.Offset(0, 60);
     canvas.scale(scale, scale);
     canvas.drawImage(image, offset1, _paint);
     canvas.drawImage(image, offset2, _paint);
@@ -432,7 +428,7 @@ class BgPainter extends CustomPainter {
     canvas.restore();
   }
 
-  /// 绘制中雨
+  /// Draw Middle Rainy
   void drawMiddleRainy(Canvas canvas, Size size) {
     ui.Image image = images[0];
     canvas.save();
@@ -460,9 +456,9 @@ class BgPainter extends CustomPainter {
     ]);
     _paint.colorFilter = identity;
     final scale = 0.8 * widthRatio;
-    ui.Offset offset1 = ui.Offset(-380, -150);
-    ui.Offset offset2 = ui.Offset(0, -60);
-    ui.Offset offset3 = ui.Offset(0, 60);
+    ui.Offset offset1 = const ui.Offset(-380, -150);
+    ui.Offset offset2 = const ui.Offset(0, -60);
+    ui.Offset offset3 = const ui.Offset(0, 60);
     canvas.scale(scale, scale);
     canvas.drawImage(image, offset1, _paint);
     canvas.drawImage(image, offset2, _paint);
@@ -470,7 +466,7 @@ class BgPainter extends CustomPainter {
     canvas.restore();
   }
 
-  /// 绘制小雪
+  /// Draw Light Snow
   void drawLightSnow(Canvas canvas, Size size) {
     ui.Image image = images[0];
     canvas.save();
@@ -498,15 +494,15 @@ class BgPainter extends CustomPainter {
     ]);
     _paint.colorFilter = identity;
     final scale = 0.8 * widthRatio;
-    ui.Offset offset1 = ui.Offset(-380, -100);
-    ui.Offset offset2 = ui.Offset(0, -170);
+    ui.Offset offset1 = const ui.Offset(-380, -100);
+    ui.Offset offset2 = const ui.Offset(0, -170);
     canvas.scale(scale, scale);
     canvas.drawImage(image, offset1, _paint);
     canvas.drawImage(image, offset2, _paint);
     canvas.restore();
   }
 
-  /// 绘制中雪
+  /// Draw Middle Snow
   void drawMiddleSnow(Canvas canvas, Size size) {
     ui.Image image = images[0];
     canvas.save();
@@ -534,15 +530,15 @@ class BgPainter extends CustomPainter {
     ]);
     _paint.colorFilter = identity;
     final scale = 0.8 * widthRatio;
-    ui.Offset offset1 = ui.Offset(-380, -100);
-    ui.Offset offset2 = ui.Offset(0, -170);
+    ui.Offset offset1 = const ui.Offset(-380, -100);
+    ui.Offset offset2 = const ui.Offset(0, -170);
     canvas.scale(scale, scale);
     canvas.drawImage(image, offset1, _paint);
     canvas.drawImage(image, offset2, _paint);
     canvas.restore();
   }
 
-  /// 绘制大雪
+  /// Draw Heavy Snow
   void drawHeavySnow(Canvas canvas, Size size) {
     ui.Image image = images[0];
     canvas.save();
@@ -570,8 +566,8 @@ class BgPainter extends CustomPainter {
     ]);
     _paint.colorFilter = identity;
     final scale = 0.8 * widthRatio;
-    ui.Offset offset1 = ui.Offset(-380, -100);
-    ui.Offset offset2 = ui.Offset(0, -170);
+    ui.Offset offset1 = const ui.Offset(-380, -100);
+    ui.Offset offset2 = const ui.Offset(0, -170);
     canvas.scale(scale, scale);
     canvas.drawImage(image, offset1, _paint);
     canvas.drawImage(image, offset2, _paint);
